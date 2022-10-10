@@ -1,140 +1,39 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Tip from './Tip';
-import './style.css';
-import { getWord, getWordRanges, WordRange, markWord, markSelected, getSelectedElement, fetchData } from './lib'
 import { browser } from 'webextension-polyfill-ts';
 import { Callout } from '@fluentui/react'
-import { mergeStyleSets, FontWeights } from '@fluentui/react/lib/Styling';
-import { Meets } from '../background_scripts/index'
+import { mergeStyleSets } from '@fluentui/react/lib/Styling';
+import { IPageMetadata, IFeedMetadata } from '../background_scripts/index'
 import config from '../config'
 import ErrorMessage from './ErrorMessage';
 import { ShadowView } from "shadow-view";
-import { wordStyles } from './Word';
 
 // 1s
 const waitDuration = 1000
 
-const articleStateURL = config.articleStateURL
-const collectionURL = config.collectionURL
-const shareURL = config.shareURL
 const feedURL = config.feedURL
 const collectionsURL = config.collectionsURL
-const feedStateURL = config.feedStateURL
-const subscribeURL = config.subscribeURL
 
 async function start() {
-	const meets: Meets = await browser.runtime.sendMessage({
-		action: "getMeets"
-	})
-	let ranges = new Array<WordRange>()
-	ranges = getWordRanges(document.getRootNode(), ranges)
-	ranges.forEach((r, i) => {
-		if (meets[r.name] > 0) {
-			r.times = meets[r.name]
-			markWord(r, false)
-		} else {
-			delete ranges[i]
-		}
-	})
-
-	document.addEventListener('mouseup', show)
-	document.addEventListener('mousedown', dismiss)
+	document.addEventListener('mousedown', closeMenu)
 }
 
+// waiting a while for client side rendered dom ready
+setTimeout(start, waitDuration)
 
 // On page loaded update feed notification
 browser.runtime.sendMessage({
 	"action": "updateBadge",
 })
 
-// waiting a while for client side rendered dom ready
-setTimeout(start, waitDuration)
-
 let _rootDiv: HTMLElement
 
-const show = async (e: MouseEvent) => {
-	const selection = window.getSelection()
-	if (selection == null) return
-
-	if (selection.type != "Range") return
-	if (selection.rangeCount != 1) return
-	const range = selection.getRangeAt(0)
-	if (range.collapsed) {
-		return
-	}
-	// don't trim here.
-	const selectText = selection.toString()
-	const word = getWord(selectText)
-	if (word == "") {
-		return
-	}
-
-	if (range.startContainer.nodeType != Node.TEXT_NODE) {
-		return
-	}
-
-	// range changed here.
-	markSelected(range, selectText)
-
-	// range has changed, add the new range to selection.
-	// this fixes Safari selection collapsed issue.
-	selection.removeAllRanges()
-	selection.addRange(range)
-
-	if (!_rootDiv) {
-		_rootDiv = document.createElement('div')
-		document.body.appendChild(_rootDiv)
-	}
-
-	ReactDOM.render(
-		<React.StrictMode>
-			<Callout
-				id="metword-tip"
-				className={styles.callout}
-				role="alertdialog"
-				gapSpace={0}
-				target={`#metword-selected`}
-				hideOverflow={true}
-			>
-				<ShadowView styleContent={wordStyles}>
-					<Tip word={word} selectText={selectText} />
-				</ShadowView>
-			</Callout>
-		</React.StrictMode>,
-		_rootDiv
-	)
-}
-
-const dismiss = (e: MouseEvent | Event) => {
-	const selectedElement = getSelectedElement()
-	selectedElement?.removeAttribute("id")
-
-	ReactDOM.unmountComponentAtNode(_rootDiv)
-}
-
 const styles = mergeStyleSets({
-	button: {
-		width: 130,
-	},
-	callout: {
-		display: "block !important",
-		width: 520,
-		padding: '20px 20px',
-	},
 	menu: {
 		display: "block !important",
 		width: 256,
 		padding: '10px 20px',
 		backgroundColor: "white",
-	},
-	title: {
-		marginBottom: 12,
-		fontWeight: FontWeights.semilight,
-	},
-	words: {
-		display: 'block',
-		marginTop: 20,
 	},
 })
 
@@ -352,14 +251,10 @@ export function Menu() {
 	)
 
 	async function addCollection(url: string, title: string) {
-		const body = {
+		const { data, errMessage } = await browser.runtime.sendMessage({
+			action: "addCollection",
 			url: url,
 			title: title,
-		}
-		const payload = JSON.stringify(body)
-		const { data, errMessage } = await fetchData(collectionURL, {
-			method: "POST",
-			body: payload,
 		})
 		if (errMessage) {
 			setErrMessage(errMessage)
@@ -370,18 +265,14 @@ export function Menu() {
 				inCollection: true,
 				id: data.collection.id,
 			},
-			feed: state!.feed
+			feed: state?.feed
 		})
 	}
 
 	async function deleteCollection(id: number) {
-		const body = {
-			id: id,
-		}
-		const payload = JSON.stringify(body)
-		const { data, errMessage } = await fetchData(collectionURL, {
-			method: "DELETE",
-			body: payload,
+		const { _, errMessage } = await browser.runtime.sendMessage({
+			action: "deleteCollection",
+			id: id
 		})
 		if (errMessage) {
 			setErrMessage(errMessage)
@@ -396,14 +287,10 @@ export function Menu() {
 	}
 
 	async function subscribe(feedURL: string, feedTitle: string) {
-		const body = {
-			url: feedURL,
-			title: feedTitle,
-		}
-		const payload = JSON.stringify(body)
-		const { data, errMessage } = await fetchData(subscribeURL, {
-			method: "POST",
-			body: payload,
+		const { data, errMessage } = await browser.runtime.sendMessage({
+			action: "subscribe",
+			feedURL: feedURL,
+			feedTitle: feedTitle,
 		})
 		if (errMessage) {
 			setErrMessage(errMessage)
@@ -420,14 +307,10 @@ export function Menu() {
 	}
 
 	async function share(url: string, title: string) {
-		const body = {
+		const { data, errMessage } = await browser.runtime.sendMessage({
+			action: "share",
 			url: url,
 			title: title,
-		}
-		const payload = JSON.stringify(body)
-		const { data, errMessage } = await fetchData(shareURL, {
-			method: "POST",
-			body: payload,
 		})
 		if (errMessage) {
 			setErrMessage(errMessage)
@@ -435,7 +318,6 @@ export function Menu() {
 		}
 		setErrMessage("Success! Thanks for sharing!")
 	}
-
 }
 
 export interface ICollectionState {
@@ -454,81 +336,17 @@ export interface IArticleState {
 	feed?: IFeedState
 }
 
-export interface IFeedMetadata {
-	url: string
-	title: string
-}
-
-export interface IPageMetadata {
-	page: {
-		url: string
-		title: string
-		canonicalURL?: string
-	}
-	feed?: IFeedMetadata
-}
-
 function useArticleState() {
 	const [state, setState] = React.useState<IArticleState | null>(null)
 
 	React.useEffect(() => {
-		async function getState() {
-			const data = await getArticleState()
+		async function sendMessage(msg: { action: string }) {
+			const data = await browser.runtime.sendMessage(msg)
 			setState(data)
 		}
 
-		getState()
+		sendMessage({ action: "getArticleStatePopup" })
 	}, [])
 
 	return { state, setState }
-}
-
-async function getCollectionState(tabURL?: string, canonicalURL?: string): Promise<ICollectionState> {
-	const body = {
-		url: tabURL,
-		canonicalURL: canonicalURL,
-	}
-	const payload = JSON.stringify(body)
-	const result = await fetchData(articleStateURL, {
-		method: "POST",
-		body: payload,
-	})
-	if (result.errMessage) {
-		// Do not propogate error message here.
-		return { inCollection: false }
-	}
-	return result.data
-}
-
-async function getFeedState(feedURL: string): Promise<IFeedState> {
-	const body = {
-		url: feedURL,
-	}
-	const payload = JSON.stringify(body)
-	const result = await fetchData(feedStateURL, {
-		method: "POST",
-		body: payload,
-	})
-	if (result.errMessage) {
-		// Do not propogate error message here.
-		return { url: feedURL, subscribed: false }
-	}
-	return { url: feedURL, ...result.data }
-}
-
-async function getArticleState(): Promise<IArticleState> {
-	const pageMetadata = getPageMetadata()
-	const page = pageMetadata.page
-	const feedURL = pageMetadata.feed?.url
-	const collectionState = await getCollectionState(page.url, page.canonicalURL)
-	if (!feedURL) {
-		return {
-			collection: collectionState
-		}
-	}
-	const feedState = await getFeedState(feedURL)
-	return {
-		collection: collectionState,
-		feed: feedState,
-	}
 }

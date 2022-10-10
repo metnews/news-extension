@@ -7,12 +7,6 @@ export interface Config {
 const env = process.env.NODE_ENV
 
 const development = {
-	meetsURL: "http://localhost:8080/meet/times",
-	queryURL: "http://localhost:8080/word?word=",
-	addSceneURL: "http://localhost:8080/scene",
-	forgetSceneURL: "http://localhost:8080/scene?id=",
-	knowURL: "http://localhost:8080/meet/toggle?id=",
-
 	articleStateURL: "http://localhost:8080/api/collection/state",
 	collectionURL: "http://localhost:8080/api/collection",
 	collectionsURL: "http://localhost:8080/collection/",
@@ -27,23 +21,17 @@ const development = {
 }
 
 const production = {
-	meetsURL: "https://app.metword.co/meet/times",
-	queryURL: "https://app.metword.co/word?word=",
-	addSceneURL: "https://app.metword.co/scene",
-	forgetSceneURL: "https://app.metword.co/scene?id=",
-	knowURL: "https://app.metword.co/meet/toggle?id=",
+	articleStateURL: "https://app.metnews.co/api/collection/state",
+	collectionURL: "https://app.metnews.co/api/collection",
+	collectionsURL: "https://app.metnews.co/collection/",
 
-	articleStateURL: "https://app.metword.co/api/collection/state",
-	collectionURL: "https://app.metword.co/api/collection",
-	collectionsURL: "https://app.metword.co/collection/",
+	feedStateURL: "https://app.metnews.co/api/feed/state",
+	feedURL: "https://app.metnews.co/feed?id=",
+	subscribeURL: "https://app.metnews.co/api/feed",
 
-	feedStateURL: "https://app.metword.co/api/feed/state",
-	feedURL: "https://app.metword.co/feed?id=",
-	subscribeURL: "https://app.metword.co/api/feed",
+	shareURL: "http://app.metnews.co/api/share",
 
-	shareURL: "http://app.metword.co/api/share",
-
-	homeURL: "https://metword.co/"
+	homeURL: "https://metnews.co/"
 }
 
 const config: Config = {

@@ -1,36 +1,24 @@
 import { browser } from "webextension-polyfill-ts"
 import config from '../config'
 
-const meetsURL = config.meetsURL
-const queryURL = config.queryURL
-const addSceneURL = config.addSceneURL
-const forgetSceneURL = config.forgetSceneURL
-const knowURL = config.knowURL
 const articleStateURL = config.articleStateURL
 const collectionURL = config.collectionURL
 const feedStateURL = config.feedStateURL
 const subscribeURL = config.subscribeURL
+const shareURL = config.shareURL
 
 browser.runtime.onMessage.addListener(async (msg) => {
 	switch (msg.action) {
-		case "query":
-			return await queryWord(msg.word)
-		case 'getMeets':
-			return await getMeets()
-		case 'addScene':
-			return await addScene(msg.scene)
-		case 'forgetScene':
-			return await forgetScene(msg.id)
-		case 'toggleKnown':
-			return await toggleKnown(msg.id)
 		case 'getArticleStatePopup':
 			return await getArticleStatePopup()
 		case 'addCollection':
-			return await addCollection()
+			return await addCollection(msg.url, msg.title)
 		case 'deleteCollection':
 			return await deleteCollection(msg.id)
 		case 'subscribe':
-			return await subscribe()
+			return await subscribe(msg.feedURL, msg.feedTitle)
+		case 'share':
+			return await share(msg.url, msg.title)
 		case 'updateBadge':
 			return await updateBadge()
 	}
@@ -69,66 +57,9 @@ async function fetchData(url: string, init: RequestInit): Promise<FetchResult> {
 	} catch (err) {
 		return {
 			data: null,
-			errMessage: "网络连接错误"
+			errMessage: "Network Error"
 		}
 	}
-}
-
-async function addScene(scene: any) {
-	const body = {
-		id: scene.id,
-		url: scene.url,
-		text: scene.text
-	}
-	const payload = JSON.stringify(body)
-	const result = await fetchData(addSceneURL, {
-		method: "POST",
-		body: payload,
-	})
-	return result
-}
-
-async function toggleKnown(id: number) {
-	const url = knowURL + id
-	const result = await fetchData(url, {
-		method: "POST",
-	})
-	return result
-}
-
-async function forgetScene(id: number) {
-	const url = forgetSceneURL + id
-	const result = await fetchData(url, {
-		method: "DELETE",
-	})
-	return result
-}
-
-async function queryWord(word: string) {
-	// any query invalidate meets cache for better user experience:
-	// we use asynchronous model, after users have makred a word(which invalidates the cache on server side asynchronously),
-	// they may refresh the page to see whether results persist, if the old cache hasn't been purged at the right moment, 
-	// another word query will fetch the new cache.
-	meetsCacheValid = false
-	const url = queryURL + word
-	const result = await fetchData(url, {})
-	return result
-}
-
-async function getMeets() {
-	if (meetsCacheValid) {
-		return meets
-	}
-	try {
-		const resp = await fetch(meetsURL, {})
-		const result = JSON.parse(await resp.text())
-		meets = result.data || {}
-		meetsCacheValid = true
-	} catch (err) {
-		meets = {}
-		meetsCacheValid = false
-	}
-	return meets
 }
 
 export interface ICollectionState {
@@ -148,18 +79,22 @@ export interface IArticleState {
 }
 
 export interface IFeedMetadata {
-	url?: string
-	title?: string
+	url: string
+	title: string
 }
 
 export interface IPageMetadata {
-	canonicalURL?: string
+	page: {
+		url: string
+		title: string
+		canonicalURL?: string
+	}
 	feed?: IFeedMetadata
 }
 
-async function getCollectionState(tabURL?: string, canonicalURL?: string): Promise<ICollectionState> {
+async function getCollectionState(url: string, canonicalURL?: string): Promise<ICollectionState> {
 	const body = {
-		url: tabURL,
+		url: url,
 		canonicalURL: canonicalURL,
 	}
 	const payload = JSON.stringify(body)
@@ -195,10 +130,10 @@ async function getArticleStatePopup(): Promise<IArticleState> {
 		const tabs = await getActiveTab()
 		// sendMessage may cause exceptions, like when in illegal tab
 		const pageMetadata: IPageMetadata = await browser.tabs.sendMessage(tabs[0].id!, { action: "queryPageMetadata" })
-		const tabURL = tabs[0].url
-		const canonicalURL = pageMetadata.canonicalURL
+		const url = pageMetadata.page.url
+		const canonicalURL = pageMetadata.page.canonicalURL
 		const feedURL = pageMetadata.feed?.url
-		const collectionState = await getCollectionState(tabURL, canonicalURL)
+		const collectionState = await getCollectionState(url, canonicalURL)
 		if (!feedURL) {
 			return {
 				collection: collectionState
@@ -222,10 +157,7 @@ async function getActiveTab() {
 	return await browser.tabs.query({ currentWindow: true, active: true })
 }
 
-async function addCollection(): Promise<FetchResult> {
-	const tabs = await getActiveTab()
-	const url = tabs[0].url
-	const title = tabs[0].title
+async function addCollection(url: string, title: string): Promise<FetchResult> {
 	const body = {
 		url: url,
 		title: title,
@@ -250,19 +182,34 @@ async function deleteCollection(id: number): Promise<FetchResult> {
 	return result
 }
 
-async function subscribe(): Promise<FetchResult> {
+async function subscribe(feedURL: string, feedTitle: string): Promise<FetchResult> {
 	try {
-		const tabs = await getActiveTab()
-		// sendMessage may cause exceptions, like when in illegal tab
-		const pageMetadata: IPageMetadata = await browser.tabs.sendMessage(tabs[0].id!, { action: "queryPageMetadata" })
-		const feedURL = pageMetadata.feed?.url
-		const feedTitle = pageMetadata.feed?.title
 		const body = {
 			url: feedURL,
 			title: feedTitle,
 		}
 		const payload = JSON.stringify(body)
 		const result = await fetchData(subscribeURL, {
+			method: "POST",
+			body: payload,
+		})
+		return result
+	} catch (err) {
+		return {
+			errMessage: "Unsupported URL",
+			data: null
+		}
+	}
+}
+
+async function share(url: string, title: string): Promise<FetchResult> {
+	try {
+		const body = {
+			url: url,
+			title: title,
+		}
+		const payload = JSON.stringify(body)
+		const result = await fetchData(shareURL, {
 			method: "POST",
 			body: payload,
 		})
@@ -282,8 +229,8 @@ async function updateBadge() {
 		// sendMessage may cause exceptions, like when in illegal tab
 		const page: IPageMetadata = await browser.tabs.sendMessage(tabs[0].id!, { action: "queryPageMetadata" })
 		if (page && page.feed) {
-			await browser.browserAction.setBadgeText({ text: "S" })
-			await browser.browserAction.setBadgeBackgroundColor({ color: "greenyellow" })
+			await browser.browserAction.setBadgeText({ text: "1" })
+			await browser.browserAction.setBadgeBackgroundColor({ color: "deepskyblue" })
 		} else {
 			await browser.browserAction.setBadgeText({ text: "" })
 		}
@@ -302,4 +249,9 @@ browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 	if (changeInfo.url && tab.active) {
 		updateActiveTab()
 	}
+})
+
+browser.browserAction.onClicked.addListener(async () => {
+	const tabs = await getActiveTab()
+	await browser.tabs.sendMessage(tabs[0].id!, { action: "openMenu" })
 })
