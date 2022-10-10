@@ -24,13 +24,6 @@ browser.runtime.onMessage.addListener(async (msg) => {
 	}
 })
 
-export interface Meets {
-	[key: string]: number
-}
-
-let meetsCacheValid = false
-let meets: Meets = {}
-
 interface FetchResult {
 	data: any,
 	errMessage: string | false

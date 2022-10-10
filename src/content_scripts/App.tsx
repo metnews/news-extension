@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import { browser } from 'webextension-polyfill-ts';
 import { Callout } from '@fluentui/react'
 import { mergeStyleSets } from '@fluentui/react/lib/Styling';
-import { IPageMetadata, IFeedMetadata } from '../background_scripts/index'
+import { IPageMetadata, IFeedMetadata, IArticleState } from '../background_scripts/index'
 import config from '../config'
 import ErrorMessage from './ErrorMessage';
 import { ShadowView } from "shadow-view";
@@ -318,22 +318,6 @@ export function Menu() {
 		}
 		setErrMessage("Success! Thanks for sharing!")
 	}
-}
-
-export interface ICollectionState {
-	inCollection: boolean
-	id?: number
-}
-
-export interface IFeedState {
-	url: string
-	subscribed: boolean
-	id?: number
-}
-
-export interface IArticleState {
-	collection: ICollectionState
-	feed?: IFeedState
 }
 
 function useArticleState() {
