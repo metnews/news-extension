@@ -150,7 +150,9 @@ function openMenu() {
 }
 
 const closeMenu = () => {
-	ReactDOM.unmountComponentAtNode(_rootDiv)
+	try {
+		ReactDOM.unmountComponentAtNode(_rootDiv)
+	} catch (e) { }
 }
 
 const starIcon = browser.runtime.getURL("icons_normal/star.png")
