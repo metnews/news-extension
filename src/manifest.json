@@ -1,25 +1,26 @@
 {
 	"name": "MetNews",
-	"description": "Your bookmark manager, with full text search and feed auto discovery.",
+	"description": "Your personal search engine, with bookmark management, full text search and feed auto discovery.",
 	"version": "1.0.0",
-	"manifest_version": 2,
-	"homepage_url": "https://metnews.com",
+	"manifest_version": 3,
+	"homepage_url": "https://metnews.co",
 	"icons": {
 		"512": "./icons/icon.png"
 	},
 	"permissions": [
 		"activeTab",
-		"tabs",
+		"tabs"
+	],
+	"host_permissions": [
 		"http://127.0.0.1/*",
 		"http://localhost/*",
 		"http://app.metnew.co/*"
 	],
 	"background": {
-		"scripts": [
-			"./dist/background_script.js"
-		]
+		"service_worker": "./dist/background_script.js",
+		"type": "module"
 	},
-	"browser_action": {
+	"action": {
 		"browser_style": true,
 		"default_title": "MetNews",
 		"default_icon": {
@@ -40,7 +41,14 @@
 		}
 	],
 	"web_accessible_resources": [
-		"icons_active/*.png",
-		"icons_normal/*.png"
+		{
+			"resources": [
+				"icons_active/*.png",
+				"icons_normal/*.png"
+			],
+			"matches": [
+				"*://*/*"
+			]
+		}
 	]
 }
