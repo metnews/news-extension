@@ -3,7 +3,7 @@
 	"description": "Your bookmark manager, with full text search and feed auto discovery.",
 	"version": "1.0.0",
 	"manifest_version": 2,
-	"homepage_url": "https://metnews.com",
+	"homepage_url": "https://metnews.co",
 	"icons": {
 		"512": "./icons/icon.png"
 	},
