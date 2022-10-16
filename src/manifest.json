@@ -14,7 +14,7 @@
 	"host_permissions": [
 		"http://127.0.0.1/*",
 		"http://localhost/*",
-		"https://app.metnew.co/*"
+		"https://app.metnews.co/*"
 	],
 	"background": {
 		"service_worker": "./dist/background_script.js",
