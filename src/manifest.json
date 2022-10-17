@@ -12,7 +12,7 @@
 		"tabs",
 		"http://127.0.0.1/*",
 		"http://localhost/*",
-		"https://app.metnews.co/*"
+		"https://*.metnews.co/*"
 	],
 	"background": {
 		"scripts": [
