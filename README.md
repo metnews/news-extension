@@ -1,25 +1,21 @@
-### About MetWords
+### Browser extensions for MetNews
 
-https://www.metwords.com
+https://metnews.co
 
-MetWords is a browser extension that translates an English word into Chinese while users select one on any webpage. 
+MetNews is your personal knowledge search engine, that helps collect what you have liked, discover new readings, and find them later with full text search.
 
-「遇见单词」是一个浏览器划词翻译插件，可以标记你不认识的单词，在下次遇见时获得提示。
+### Branches
 
-### About The Code
+Branch `main` is Manifest V2, serving for Firefox and Safari.
+Branch `manifest_v3` is Manifest V3, serving for Chrome and Edge.
 
-The codebase serves as MetWords Extensions for all mainline browsers, including Chrome, Firefox, Edge, and Safari(with a little Swift code).
+### Build
 
-### For Extension Review Process
+	$ npm install
+	$ npm run watch
 
-Hello dear reviewers, thanks for your time!
+### Release
 
-Here is how to build the extension:
-
-```shell
-$ npm install
-$ npm run prod
-```
-
-That's all.
+	$ npm install
+	$ npm run prod
 
