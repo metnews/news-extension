@@ -6,6 +6,7 @@ const collectionURL = config.collectionURL
 const feedStateURL = config.feedStateURL
 const subscribeURL = config.subscribeURL
 const shareURL = config.shareURL
+const homeURL = config.homeURL
 
 browser.runtime.onMessage.addListener(async (msg) => {
 	switch (msg.action) {
@@ -247,6 +248,12 @@ browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 chrome.action.onClicked.addListener(async () => {
 	const tabs = await getActiveTab()
 	try {
+		// On new tab sendMessage may throw exception
 		await browser.tabs.sendMessage(tabs[0].id!, { action: "openMenu" })
-	} catch (e) { }
+	} catch (e) {
+		// Then we open homepage, for better user experience.
+		await browser.tabs.create({
+			url: homeURL
+		})
+	}
 })

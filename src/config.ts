@@ -15,6 +15,8 @@ const development = {
 
 	collectionsURL: "http://localhost:8080/collection/",
 	feedURL: "http://localhost:8080/feed?id=",
+
+	homeURL: "http://localhost:8080/"
 }
 
 const production = {
@@ -26,6 +28,8 @@ const production = {
 
 	collectionsURL: "https://app.metnews.co/collection/",
 	feedURL: "https://app.metnews.co/feed?id=",
+
+	homeURL: "https://app.metnews.co/"
 }
 
 const config: Config = {
