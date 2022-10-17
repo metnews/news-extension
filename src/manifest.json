@@ -1,7 +1,7 @@
 {
 	"name": "MetNews",
 	"description": "Your personal search engine, with bookmark management, full text search and feed auto discovery.",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"manifest_version": 3,
 	"homepage_url": "https://metnews.co",
 	"icons": {
