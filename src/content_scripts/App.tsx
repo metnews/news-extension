@@ -96,12 +96,16 @@ const menuStyles = `
 	display: flex;
 	flex-direction: row;
 	column-gap: 12px;
-	vertical-align: center;
+	align-items: center;
 	justify-content: space-evenly;
 }
 
 .button {
 	cursor: pointer;
+}
+
+.button a {
+	display: flex;
 }
 
 .button img {
@@ -116,7 +120,7 @@ const menuStyles = `
 .message {
 	display: flex;
 	flex-direction: row;
-	vertical-align: center;
+	align-items: center;
 	justify-content: space-between;
 }
 `
