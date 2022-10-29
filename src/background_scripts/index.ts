@@ -8,7 +8,6 @@ const collectionURL = config.collectionURL
 const feedStateURL = config.feedStateURL
 const subscribeURL = config.subscribeURL
 const shareURL = config.shareURL
-const homeURL = config.homeURL
 
 browser.runtime.onMessage.addListener(async (msg) => {
 	switch (msg.action) {
@@ -254,9 +253,6 @@ chrome.action.onClicked.addListener(async () => {
 		// On new tab sendMessage may throw exception
 		await browser.tabs.sendMessage(tabs[0].id!, { action: "openMenu" })
 	} catch (e) {
-		// Then we open homepage, for better user experience.
-		await browser.tabs.create({
-			url: homeURL
-		})
+		console.log("Unsupported Tab")
 	}
 })
