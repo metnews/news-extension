@@ -223,27 +223,27 @@ export function Menu() {
 			}
 			{feedMetadata && feed && !feed.subscribed &&
 				<div className='button'>
-					<a title='Subscribe Feed' onClick={() => subscribe(feedMetadata.url, feedMetadata.title)}>
+					<a title='Subscribe to Feed' onClick={() => subscribe(feedMetadata.url, feedMetadata.title)}>
 						<img src={rssIcon}></img>
 					</a>
 				</div>
 			}
 			{feedMetadata && feed && feed.subscribed &&
 				<div title='View Feed' className="button">
-					<a href={feedURL + feed.id}>
+					<a href={feedURL + feed.id} target="_blank">
 						<img src={rssActive}></img>
 					</a>
 				</div>
 			}
 
 			<div className="button">
-				<a title="Search Collections" href={collectionsURL}>
+				<a title="Search Collections" href={collectionsURL} target="_blank">
 					<img src={searchIcon}></img>
 				</a>
 			</div>
 
 			<div className='button'>
-				<a title="Share To News" onClick={() => share(pageMetadata.url, pageMetadata.title)}>
+				<a title="Share to News" onClick={() => share(pageMetadata.url, pageMetadata.title)}>
 					<img src={shareIcon}></img>
 				</a>
 			</div>
