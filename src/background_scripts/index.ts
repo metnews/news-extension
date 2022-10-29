@@ -1,6 +1,8 @@
 import { browser } from "webextension-polyfill-ts"
 import config from '../config'
 
+const ua = 'MetNews-Extension/1.0.2'
+
 const articleStateURL = config.articleStateURL
 const collectionURL = config.collectionURL
 const feedStateURL = config.feedStateURL
@@ -34,7 +36,8 @@ async function fetchData(url: string, init: RequestInit): Promise<FetchResult> {
 	const jsonHeaders = new Headers({
 		// Our Go backend implementation needs 'Accept' header to distinguish between requests, like via JSON or Turbo.
 		'Accept': 'application/json',
-		'Content-Type': "application/json"
+		'Content-Type': "application/json",
+		'X-UA': ua
 	})
 	if (!init.headers) {
 		init.headers = jsonHeaders
