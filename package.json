@@ -1,7 +1,7 @@
 {
-	"name": "metwords-extensions",
+	"name": "news-extension",
 	"version": "1.0.0",
-	"description": "Metwords",
+	"description": "Browser extensions for MetNews",
 	"private": true,
 	"scripts": {
 		"watch": "npm run development -- --watch",
@@ -12,14 +12,14 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/metwords/metaphor.git"
+		"url": "git+https://github.com/metnews/news-extension.git"
 	},
 	"author": "Jian Li",
 	"license": "Metaphor",
 	"bugs": {
-		"url": "https://github.com/metwords/extensions/issues"
+		"url": "https://github.com/metnews/news-extension/issues"
 	},
-	"homepage": "https://github.com/metwords/extensions#readme",
+	"homepage": "https://github.com/metnews/news-extension#readme",
 	"dependencies": {
 		"@fluentui/react": "^8.23.5",
 		"react": "^17.0.2",
